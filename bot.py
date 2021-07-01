@@ -35,7 +35,7 @@ async def on_ready():
 # loops every minute
 @tasks.loop(minutes=1.0)
 async def status_task():
-    statuses = ["with you!", "we love Sai!", f"{config['bot_prefix']}help", "with humans!"]
+    statuses = ["with you!", "we love Sai!", f"{config['bot_prefix']}help", "the game of life..."]
     await bot.change_presence(activity=discord.Game(random.choice(statuses)))
 
 

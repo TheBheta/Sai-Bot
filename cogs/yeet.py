@@ -20,6 +20,7 @@ else:
 #constants
 pfpSize = 128, 128
 framesDir = config["root_dir"] + "assets/yeetburger/"
+soundFile = config["root_dir"] + "assets/yeetburger/yeet.mp3"
 mapping = [
     [720, 320, 1280, 720], #0 - initial burger
     [720, 320, 1280, 720], #1
@@ -97,13 +98,21 @@ mapping = [
 ]
 
 # create command
-class yeetburger(commands.Cog, name="template"):
+class yeet(commands.Cog, name="template"):
     def __init__(self, bot):
         self.bot = bot
 
     # Here you can just add your own commands, you'll always need to provide "self" as first parameter.
-    @commands.command(name="yeetburger")
-    async def yeetburger(self, context, member: discord.Member = None):
+    @commands.command(name="yeet")
+    async def yeet(self, context, member: discord.Member = None):
+        #loading
+        await context.message.add_reaction("🇱")
+        await context.message.add_reaction("🇴")
+        await context.message.add_reaction("🇦")
+        await context.message.add_reaction("🇩")
+        await context.message.add_reaction("🇮")
+        await context.message.add_reaction("🇳")
+        await context.message.add_reaction("🇬")
         #open profile pictures
         pfp1 = Image.open(requests.get(member.avatar_url, stream=True).raw) #burger
         pfp2 = Image.open(requests.get(context.message.author.avatar_url, stream=True).raw) #ramsay
@@ -122,14 +131,18 @@ class yeetburger(commands.Cog, name="template"):
             newFrame.save(outputDir + "/frame" + "0" * (2 - len(str(frame))) + str(frame) + ".png", format="png")
 
         #stitch frames together
-        finalVideo = outputDir + ".mp4"
-        os.system("ffmpeg -r 20 -f image2 -s 1280x720 -i " + outputDir + "/frame%02d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + outputDir + ".mp4")
+        finalVideo = config["root_dir"] + "temp/yeet" + str(context.message.author.id)[:3] + ".mp4"
+        os.system("ffmpeg -r 20 -f image2 -s 1280x720 -i " + outputDir + "/frame%02d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + outputDir + ".mp4 -loglevel 0")
+
+        os.system("ffmpeg -i " + outputDir + ".mp4 -i " + soundFile + " -map 0:v -map 1:a -c:v copy -shortest " + finalVideo " -loglevel 0")
         await context.message.channel.send(file=discord.File(finalVideo))
+        await context.message.clear_reactions() #clear loading message
         shutil.rmtree(outputDir)
         os.remove(outputDir + ".mp4")
+        os.remove(finalVideo)
 
 
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 def setup(bot):
-    bot.add_cog(yeetburger(bot))
+    bot.add_cog(yeet(bot))

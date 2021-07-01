@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import random
 import string
 import sys
@@ -124,7 +125,7 @@ class yeetburger(commands.Cog, name="template"):
         finalVideo = outputDir + ".mp4"
         os.system("ffmpeg -r 20 -f image2 -s 1280x720 -i " + outputDir + "/frame%02d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + outputDir + ".mp4")
         await context.message.channel.send(file=discord.File(finalVideo))
-        os.system(outputDir)
+        shutil.rmtree(outputDir)
         os.remove(outputDir + ".mp4")
 
 

@@ -139,6 +139,7 @@ cython_debug/
 
 .idea/*
 
-#hide config and blacklist file
+#hide config and blacklist file and temp dir
 config.json
 blacklist.json
+temp

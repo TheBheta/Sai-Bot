@@ -9,8 +9,16 @@ from discord.ext import commands
 from PIL import Image
 import requests
 
+if not os.path.isfile("config.json"):
+    sys.exit("config.json not found!")
+else:
+    with open("config.json") as file:
+        config = json.load(file)
+
+
 #constants
 pfpSize = 128, 128
+framesDir = config["root_dir"] + "assets/yeetburger/"
 mapping = [
     [720, 320, 1280, 720], #0 - initial burger
     [720, 320, 1280, 720], #1
@@ -97,21 +105,27 @@ class yeetburger(commands.Cog, name="template"):
     async def yeetburger(self, context, member: discord.Member = None):
         #open profile pictures
         pfp1 = Image.open(requests.get(member.avatar_url, stream=True).raw) #burger
-        pfp2 = Image.open(requests.get(context.message.author.avatar_ur, stream=True).raw) #ramsay
+        pfp2 = Image.open(requests.get(context.message.author.avatar_url, stream=True).raw) #ramsay
+        pfp1.thumbnail(pfpSize, Image.ANTIALIAS)
+        pfp2.thumbnail(pfpSize, Image.ANTIALIAS)
 
-        tempDir = "yeetburger/temp-" + ''.join(random.choice(string.ascii_lowercase) for i in range(6))
-        os.mkdir(tempDir)
+        outputDir = config["root_dir"] + "temp/" + ''.join(random.choice(string.ascii_lowercase) for i in range(6))
+        os.mkdir(outputDir)
 
         #loop through frames
         for frame in range(0, len(mapping)):
-            videoFrame = Image.open("../../assets" + str(frame) + ".jpg") #open frame
+            videoFrame = Image.open(framesDir + "frame" + str(frame) + ".jpg") #open frame
             newFrame = videoFrame.copy() #create copy of new frame
             newFrame.paste(pfp1, (mapping[frame][0], mapping[frame][1])) #add profile pictures
             newFrame.paste(pfp2, (mapping[frame][2], mapping[frame][3]))
-            newFrame.save(tempDir + "/frame" + "0" * (2 - len(str(frame))) + str(frame) + ".png", format="png")
+            newFrame.save(outputDir + "/frame" + "0" * (2 - len(str(frame))) + str(frame) + ".png", format="png")
 
-
-
+        #stitch frames together
+        finalVideo = outputDir + ".mp4"
+        os.system("ffmpeg -r 20 -f image2 -s 1280x720 -i " + outputDir + "/frame%02d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + outputDir + ".mp4")
+        await context.message.channel.send(file=discord.File(finalVideo))
+        os.system(outputDir)
+        os.remove(outputDir + ".mp4")
 
 
 

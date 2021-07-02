@@ -19,8 +19,8 @@ else:
 
 #constants
 pfpSize = 128, 128
-framesDir = config["root_dir"] + "assets/yeetburger/"
-soundFile = config["root_dir"] + "assets/yeetburger/yeet.mp3"
+framesDir = config["root_dir"] + "assets/yeet/"
+soundFile = config["root_dir"] + "assets/yeet/yeet.mp3"
 mapping = [
     [720, 320, 1280, 720], #0 - initial burger
     [720, 320, 1280, 720], #1
@@ -134,7 +134,7 @@ class yeet(commands.Cog, name="template"):
         finalVideo = config["root_dir"] + "temp/yeet" + str(context.message.author.id)[:3] + ".mp4"
         os.system("ffmpeg -r 20 -f image2 -s 1280x720 -i " + outputDir + "/frame%02d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + outputDir + ".mp4 -loglevel 0")
 
-        os.system("ffmpeg -i " + outputDir + ".mp4 -i " + soundFile + " -map 0:v -map 1:a -c:v copy -shortest " + finalVideo " -loglevel 0")
+        os.system("ffmpeg -i " + outputDir + ".mp4 -i " + soundFile + " -map 0:v -map 1:a -c:v copy -shortest " + finalVideo + " -loglevel 0")
         await context.message.channel.send(file=discord.File(finalVideo))
         await context.message.clear_reactions() #clear loading message
         shutil.rmtree(outputDir)
